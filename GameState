@@ -1,0 +1,223 @@
+import java.util.*;
+public class GameState{
+	public int[][] state; //state of the puzzle
+	public GameState parent; //parent in the game tree
+	
+	public GameState() {
+		//initialize state to zeros, parent to null
+		this.state = new int[3][3]; 
+		for(int i = 0; i  < state.length; i++) 
+		{ 
+			for(int j = 0; j < state[i].length; j++) { 
+				state[i][j] = 0; 
+			}
+		}
+		parent = null; 
+	}
+	public GameState(int[][] state) {
+		//initialize this.state to state, parent to null
+		this.state = new int[3][3]; 
+		for(int i = 0; i  < state.length; i++) 
+		{ 
+			for(int j = 0; j < state[i].length; j++) { 
+				this.state[i][j] = state[i][j]; 
+			}
+		}
+		parent = null; 
+	}
+	public GameState(int[][] state, GameState parent) {
+		//initialize this.state to state, this.parent to parent
+		this.state = new int[3][3]; 
+		for(int i = 0; i  < state.length; i++) 
+		{ 
+			for(int j = 0; j < state[i].length; j++) { 
+				this.state[i][j] = state[i][j]; 
+			}
+		}
+		this.parent = parent; 
+	}
+	public GameState swapRight(GameState s, int row, int col) {
+		//helper function to swap blank space with right block
+		int[][] temp = new int[3][3]; 
+		
+		for(int i = 0; i < 3; i++) { 
+			for(int n = 0; n < 3; n++) { 
+				temp[i][n] = s.state[i][n]; 
+			}
+		}
+		int temporary = temp[row][col]; 
+		
+		temp[row][col] = temp[row][col + 1]; 
+		temp[row][col + 1] = temporary; 
+		GameState gs = new GameState(temp, s); 
+		return gs; 
+	}
+	public GameState swapLeft(GameState s, int row, int col) {
+		//helper function to swap blank space with left block
+		int[][] temp = new int[3][3]; 
+		
+		for(int i = 0; i < 3; i++) { 
+			for(int n = 0; n < 3; n++) { 
+				temp[i][n] = s.state[i][n]; 
+			}
+		}
+		int temporary = temp[row][col]; 
+
+		temp[row][col] = temp[row][col -1]; 
+		temp[row][col -1] = temporary; 
+		GameState gs = new GameState(temp, s); 
+		return gs; 
+	}
+	public GameState swapUp(GameState s, int row, int col) {
+		//helper function to swap blank space with up block
+		int[][] temp = new int[3][3]; 
+		
+		for(int i = 0; i < 3; i++) { 
+			for(int n = 0; n < 3; n++) { 
+				temp[i][n] = s.state[i][n]; 
+			}
+		}
+		int temporary = temp[row][col]; 
+
+		temp[row][col] = temp[row-1][col]; 
+		temp[row-1][col] = temporary; 
+		GameState gs = new GameState(temp, s); 
+		return gs;
+	}
+	public GameState swapDown(GameState s, int row, int col) {
+		//helper function to swap blank space with down block
+	int[][] temp = new int[3][3]; 
+		
+		for(int i = 0; i < 3; i++) { 
+			for(int n = 0; n < 3; n++) { 
+				temp[i][n] = s.state[i][n]; 
+			}
+		}
+		int temporary = temp[row][col]; 
+
+		temp[row][col] = temp[row + 1][col]; 
+		temp[row + 1][col] = temporary; 
+		GameState gs = new GameState(temp, s); 
+		return gs;
+	}
+	public boolean isEnd() {
+		//helper function to check if the GameState is the end state e.g.
+		//0 1 2
+		//3 4 5
+		//6 7 8
+		String correct = "012345678";
+		  String string = "";
+		  for(int i=0; i< 3; i++) {
+			  for(int j=0; j< 3; j++)
+				  string = string + state[i][j];
+		  }
+		  if(string.equals(correct))
+			  return true;
+		  else
+			  return false;
+	}
+	public ArrayList<GameState> getAdjacent() {
+		//Use the swap functions to generate the new vertices of the tree
+		//don’t swap left when you are already on the left edge
+		//GameState temp = new GameState(); 
+		  ArrayList<GameState> list = new ArrayList<GameState>();
+		  int row = 0;
+		  int col = 0;
+		  for(int i=0; i< 3; i++)
+				 for(int j=0; j< 3; j++) {
+					 if(state[i][j] == 0) {
+						 row = i;
+						 col = j;
+					 } 	
+				 }
+		  if(row == 0 && col == 0) {
+			  list.add(swapDown(this,0,0));
+			  list.add(swapRight(this,0,0));
+			  return list;
+		  }
+		  
+		  if(row == 1 && col == 0) {
+			  list.add(swapUp(this,1,0));
+			  list.add(swapDown(this,1,0));
+			  list.add(swapRight(this,1,0));
+			  return list;
+		  }
+		  
+		  if(row == 2 && col == 0) {
+			  list.add(swapUp(this,2,0));
+			  list.add(swapRight(this,2,0));
+			  return list;
+		  }
+		  
+		  if(row == 0 && col == 1) {
+			  list.add(swapDown(this,0,1));
+			  list.add(swapRight(this,0,1));
+			  list.add(swapLeft(this,0,1));
+			  return list;
+		  }
+		  
+		  if(row == 0 && col == 2) {
+			  list.add(swapDown(this,0,2));
+			  list.add(swapLeft(this,0,2));
+			  return list;
+		  }
+		  
+		  if(row == 1 && col == 1) {
+			  list.add(swapUp(this,1,1));
+			  list.add(swapDown(this,1,1));
+			  list.add(swapRight(this,1,1));
+			  list.add(swapLeft(this,1,1));
+			  return list;
+		  }
+		  
+		  if(row == 1 && col == 2) {
+			  list.add(swapUp(this,1,2));
+			  list.add(swapDown(this,1,2));
+			  list.add(swapLeft(this,1,2));
+			  return list;
+		  }
+		  
+		  if(row == 2 && col == 1) {
+			  list.add(swapUp(this,2,1));
+			  list.add(swapRight(this,2,1));
+			  list.add(swapLeft(this,2,1));
+			  return list;
+		  }
+		  else {
+			  list.add(swapUp(this,2,2));
+			  list.add(swapLeft(this,2,2));
+			  return list;
+		  }
+	  }
+	@Override
+	public boolean equals(Object o) {
+		//test that 2 GameStates are equal
+		GameState temp = (GameState)o; 
+		boolean equal = true; 
+		for(int i = 0; i < 3; i++) { 
+			for(int j = 0; j < 3; j++) { 
+				if(this.state[i][j] != temp.state[i][j])
+					equal = false; 
+			}
+		}
+		return equal; 
+		
+		
+	}
+	@Override
+	public String toString() {
+		// print out the int[][] array in a 3x3 block e.g.
+		//0 1 2
+		//3 4 5
+		//6 7 8
+		String returnString = ""; 
+		for(int i = 0; i  < state.length; i++) 
+		{ 
+			for(int j = 0; j < state.length; j++) { 
+				returnString += state[i][j];
+			}
+				returnString += "\n"; 
+		}
+		return "\n" + returnString ; 
+	}
+}
